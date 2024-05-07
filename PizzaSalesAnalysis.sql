@@ -89,8 +89,7 @@ SELECT COUNT(*) FROM pizza_sales_db.orders_tbl;
 SELECT 
     SUM(od.quantity * p.price) AS total_revenue
 FROM pizza_sales_db.order_details_tbl od
-JOIN pizza_sales_db.pizzas_tbl p
-    ON od.pizza_id = p.pizza_id;
+    JOIN pizza_sales_db.pizzas_tbl p ON od.pizza_id = p.pizza_id;
 
 
 -- highest priced pizza
@@ -99,8 +98,7 @@ SELECT
     pt.name
     , p.price
 FROM pizza_sales_db.pizzas_tbl p
-JOIN pizza_sales_db.pizza_types_tbl pt
-    ON p.pizza_type_id = pt.pizza_type_id
+    JOIN pizza_sales_db.pizza_types_tbl pt ON p.pizza_type_id = pt.pizza_type_id
 ORDER BY
     p.price DESC
 LIMIT 1;
@@ -112,9 +110,9 @@ SELECT
     p.size
     , COUNT(p.size) AS sizes_ordered
 FROM pizza_sales_db.order_details_tbl od
-JOIN pizza_sales_db.pizzas_tbl p
-    ON od.pizza_id = p.pizza_id
-GROUP BY p.size
+    JOIN pizza_sales_db.pizzas_tbl p ON od.pizza_id = p.pizza_id
+GROUP BY 
+    p.size
 ORDER BY
     sizes_ordered DESC
 LIMIT 1;
@@ -126,11 +124,10 @@ SELECT
     pt.name AS pizza_name
     , SUM(od.quantity) AS total_quantities
 FROM pizza_sales_db.order_details_tbl od
-JOIN pizza_sales_db.pizzas_tbl p
-    ON od.pizza_id = p.pizza_id
-JOIN pizza_sales_db.pizza_types_tbl pt
-    ON p.pizza_type_id = pt.pizza_type_id
-GROUP BY p.pizza_type_id
+    JOIN pizza_sales_db.pizzas_tbl p ON od.pizza_id = p.pizza_id
+    JOIN pizza_sales_db.pizza_types_tbl pt ON p.pizza_type_id = pt.pizza_type_id
+GROUP BY 
+    p.pizza_type_id
 ORDER BY
     total_quantities DESC
 LIMIT 5;
@@ -142,20 +139,20 @@ SELECT
     pt.category
     , SUM(od.quantity) AS total_ordered
 FROM pizza_sales_db.order_details_tbl od
-JOIN pizza_sales_db.pizzas_tbl p
-    ON od.pizza_id = p.pizza_id
-JOIN pizza_sales_db.pizza_types_tbl pt
-    ON p.pizza_type_id = pt.pizza_type_id
-GROUP BY pt.category;    ;
+    JOIN pizza_sales_db.pizzas_tbl p ON od.pizza_id = p.pizza_id
+    JOIN pizza_sales_db.pizza_types_tbl pt ON p.pizza_type_id = pt.pizza_type_id
+GROUP BY 
+    pt.category;    ;
 
 
 -- distribution of orders by hour of the day
 
 SELECT
     HOUR(time) as hour
-    , COUNT(order_id) as orders
+    , COUNT(order_id) AS orders
 FROM pizza_sales_db.orders_tbl
-GROUP BY hour;
+GROUP BY 
+    hour;
 
 
 -- category-wise distribution of pizzas
@@ -164,7 +161,8 @@ SELECT
     category
     , COUNT(category) AS pizza_count
 FROM pizza_sales_db.pizza_types_tbl
-GROUP BY category;
+GROUP BY 
+    category;
 
 
 -- average number of pizzas ordered per day
@@ -176,9 +174,9 @@ FROM (
         o.date AS date
         , SUM(od.quantity) AS pizzas_orders
     FROM pizza_sales_db.order_details_tbl od
-    JOIN pizza_sales_db.orders_tbl o
-        ON od.order_id = o.order_id
-    GROUP BY date
+        JOIN pizza_sales_db.orders_tbl o ON od.order_id = o.order_id
+    GROUP BY 
+        date
 ) AS total_orders_per_day;
 
 
@@ -188,12 +186,12 @@ SELECT
     pt.name
     , SUM(od.quantity * p.price) AS total_revenue
 FROM pizza_sales_db.order_details_tbl od
-JOIN pizza_sales_db.pizzas_tbl p
-    ON od.pizza_id = p.pizza_id
-JOIN pizza_sales_db.pizza_types_tbl pt
-    ON p.pizza_type_id = pt.pizza_type_id
-GROUP BY pt.name
-ORDER BY total_revenue DESC
+    JOIN pizza_sales_db.pizzas_tbl p ON od.pizza_id = p.pizza_id
+    JOIN pizza_sales_db.pizza_types_tbl pt ON p.pizza_type_id = pt.pizza_type_id
+GROUP BY 
+    pt.name
+ORDER BY 
+    total_revenue DESC
 LIMIT 3;
 
 
@@ -203,18 +201,17 @@ SELECT
     pt.category
     , ROUND(
         SUM(od.quantity * p.price) / (
-            SELECT SUM(od.quantity * p.price) 
+            SELECT 
+                SUM(od.quantity * p.price) 
             FROM pizza_sales_db.order_details_tbl od 
-            JOIN pizza_sales_db.pizzas_tbl p
-                ON od.pizza_id = p.pizza_id
+                JOIN pizza_sales_db.pizzas_tbl p ON od.pizza_id = p.pizza_id
         ) * 100 
     , 2) AS revenue_percentage
 FROM pizza_sales_db.order_details_tbl od
-JOIN pizza_sales_db.pizzas_tbl p
-    ON od.pizza_id = p.pizza_id
-JOIN pizza_sales_db.pizza_types_tbl pt
-    ON p.pizza_type_id = pt.pizza_type_id
-GROUP BY pt.category
+    JOIN pizza_sales_db.pizzas_tbl p ON od.pizza_id = p.pizza_id
+    JOIN pizza_sales_db.pizza_types_tbl pt ON p.pizza_type_id = pt.pizza_type_id
+GROUP BY 
+    pt.category
 
 
 -- cumulative revenue generated over time
@@ -224,11 +221,10 @@ WITH sales_per_day AS (
         o.date AS date
         , SUM(od.quantity * p.price) AS revenue
     FROM pizza_sales_db.order_details_tbl od
-    JOIN pizza_sales_db.pizzas_tbl p
-        ON od.pizza_id = p.pizza_id
-    JOIN pizza_sales_db.orders_tbl o
-        ON od.order_id = o.order_id
-    GROUP BY date
+        JOIN pizza_sales_db.pizzas_tbl p ON od.pizza_id = p.pizza_id
+        JOIN pizza_sales_db.orders_tbl o ON od.order_id = o.order_id
+    GROUP BY 
+        date
 )
 
 SELECT
@@ -245,10 +241,8 @@ WITH category_name_revenue AS (
         , pt.name AS name
         , SUM(od.quantity * p.price) AS revenue
     FROM pizza_sales_db.order_details_tbl od
-    JOIN pizza_sales_db.pizzas_tbl p
-        ON od.pizza_id = p.pizza_id
-    JOIN pizza_sales_db.pizza_types_tbl pt
-        ON p.pizza_type_id = pt.pizza_type_id
+        JOIN pizza_sales_db.pizzas_tbl p ON od.pizza_id = p.pizza_id
+        JOIN pizza_sales_db.pizza_types_tbl pt ON p.pizza_type_id = pt.pizza_type_id
     GROUP BY
         category
         , name
